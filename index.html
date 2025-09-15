@@ -22,14 +22,34 @@
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Rota Fatec -> Etec
-    L.Routing.control({
-      waypoints: [
-        L.latLng(-24.497556, -47.848611), // Fatec Registro
-        L.latLng(-24.497639, -47.842611)  // Etec Registro
-      ],
-      routeWhileDragging: true
+    const control = L.Routing.control({
+      waypoints: [],
+      routeWhileDragging: true,
+      addWaypoints: true
     }).addTo(map);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+    control.setWaypoints([
+          L.latLng(lat, lng), // Ponto inicial = usuário
+          L.latLng(-24.497639, -47.842611) // Etec Registro (exemplo de destino)
+        ]);
+
+        map.setView([lat, lng], 15);
+      }, () => {
+        alert("Não foi possível obter sua localização.");
+      });
+    }
+
+    // Permitir adicionar pontos ao clicar no mapa
+    map.on('click', e => {
+      const waypoints = control.getWaypoints().map(wp => wp.latLng).filter(Boolean);
+      waypoints.push(e.latlng);
+      control.setWaypoints(waypoints);
+    });
   </script>
 </body>
 </html>
