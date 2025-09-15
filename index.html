@@ -23,10 +23,19 @@
     }).addTo(map);
 
     const control = L.Routing.control({
-      waypoints: [],
-      routeWhileDragging: true,
-      addWaypoints: true
-    }).addTo(map);
+  waypoints: [],
+  routeWhileDragging: true,
+  addWaypoints: true,
+  createMarker: function(i, wp, nWps) {
+    return L.marker(wp.latLng, {
+      draggable: true
+    }).on('contextmenu', function() { // botão direito do mouse
+      const waypoints = control.getWaypoints().map(w => w.latLng);
+      waypoints.splice(i, 1); // remove o ponto selecionado
+      control.setWaypoints(waypoints);
+    });
+  }
+}).addTo(map);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
